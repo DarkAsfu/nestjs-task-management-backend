@@ -29,7 +29,7 @@ export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(RolesGuard)
   @Roles('ADMIN')
   create(@Body() createTaskDto: CreateTaskDto, @Req() req: { user: AuthUser }) {
     return this.tasksService.createTask(createTaskDto, req.user);
@@ -46,7 +46,7 @@ export class TasksController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(RolesGuard)
   @Roles('ADMIN')
   update(
     @Param('id') id: string,
@@ -66,7 +66,7 @@ export class TasksController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(RolesGuard)
   @Roles('ADMIN')
   delete(@Param('id') id: string, @Req() req: { user: AuthUser }) {
     return this.tasksService.deleteTask(id, req.user);
