@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { User } from './users/entities/user.entity';
 import { Task } from './tasks/entities/task.entity';
 import { AuditLog } from './audit-logs/entities/audit-log.entity';
+import { AuditLogsModule } from './audit-logs/audit-logs.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { TasksModule } from './tasks/tasks.module';
@@ -27,6 +28,7 @@ import { TasksModule } from './tasks/tasks.module';
     AuthModule,
     UsersModule,
     TasksModule,
+    AuditLogsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

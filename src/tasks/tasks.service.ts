@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AuditLogsService } from 'src/audit-logs/audit-logs.service';
 import { Role } from 'src/common/enums/role.enum';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -26,9 +27,10 @@ export class TasksService {
     private readonly tasksRepository: Repository<Task>,
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    private readonly auditLogsService: AuditLogsService,
   ) {}
 
-  async createTask(createTaskDto: CreateTaskDto) {
+  async createTask(createTaskDto: CreateTaskDto, currentUser: AuthUser) {
     const assignedUser = await this.usersRepository.findOne({
       where: { id: createTaskDto.assignedUserId },
     });
@@ -45,7 +47,18 @@ export class TasksService {
     });
 
     const savedTask = await this.tasksRepository.save(task);
-    return this.findTaskById(savedTask.id);
+    const createdTask = await this.findTaskById(savedTask.id);
+    const afterData = this.toResponse(createdTask);
+
+    await this.auditLogsService.createLog({
+      actorId: currentUser.id,
+      actionType: 'TASK_CREATED',
+      targetId: createdTask.id,
+      beforeData: null,
+      afterData,
+    });
+
+    return afterData;
   }
 
   async findAllTasks(currentUser: AuthUser) {
@@ -78,8 +91,11 @@ export class TasksService {
     return this.toResponse(task);
   }
 
-  async updateTask(id: string, updateTaskDto: UpdateTaskDto) {
+  async updateTask(id: string, updateTaskDto: UpdateTaskDto, currentUser: AuthUser) {
     const task = await this.findTaskById(id);
+    const beforeData = this.toResponse(task);
+    const previousAssignedUserId = task.assignedUser.id;
+    const previousStatus = task.status;
 
     if (updateTaskDto.assignedUserId) {
       const assignedUser = await this.usersRepository.findOne({
@@ -106,7 +122,41 @@ export class TasksService {
     }
 
     const updatedTask = await this.tasksRepository.save(task);
-    return this.findTaskById(updatedTask.id).then((data) => this.toResponse(data));
+    const fullUpdatedTask = await this.findTaskById(updatedTask.id);
+    const afterData = this.toResponse(fullUpdatedTask);
+
+    await this.auditLogsService.createLog({
+      actorId: currentUser.id,
+      actionType: 'TASK_UPDATED',
+      targetId: fullUpdatedTask.id,
+      beforeData,
+      afterData,
+    });
+
+    if (
+      updateTaskDto.assignedUserId &&
+      previousAssignedUserId !== fullUpdatedTask.assignedUser.id
+    ) {
+      await this.auditLogsService.createLog({
+        actorId: currentUser.id,
+        actionType: 'TASK_ASSIGNMENT_CHANGED',
+        targetId: fullUpdatedTask.id,
+        beforeData: { assignedUserId: previousAssignedUserId },
+        afterData: { assignedUserId: fullUpdatedTask.assignedUser.id },
+      });
+    }
+
+    if (updateTaskDto.status !== undefined && previousStatus !== fullUpdatedTask.status) {
+      await this.auditLogsService.createLog({
+        actorId: currentUser.id,
+        actionType: 'TASK_STATUS_CHANGED',
+        targetId: fullUpdatedTask.id,
+        beforeData: { status: previousStatus },
+        afterData: { status: fullUpdatedTask.status },
+      });
+    }
+
+    return afterData;
   }
 
   async updateTaskStatus(
@@ -115,6 +165,7 @@ export class TasksService {
     currentUser: AuthUser,
   ) {
     const task = await this.findTaskById(id);
+    const beforeStatus = task.status;
 
     const isAdmin = currentUser.role === Role.ADMIN;
     const isOwnTask = task.assignedUser.id === currentUser.id;
@@ -125,12 +176,32 @@ export class TasksService {
 
     task.status = updateTaskStatusDto.status;
     const updatedTask = await this.tasksRepository.save(task);
-    return this.findTaskById(updatedTask.id).then((data) => this.toResponse(data));
+    const fullUpdatedTask = await this.findTaskById(updatedTask.id);
+    const afterData = this.toResponse(fullUpdatedTask);
+
+    await this.auditLogsService.createLog({
+      actorId: currentUser.id,
+      actionType: 'TASK_STATUS_CHANGED',
+      targetId: fullUpdatedTask.id,
+      beforeData: { status: beforeStatus },
+      afterData: { status: fullUpdatedTask.status },
+    });
+
+    return afterData;
   }
 
-  async deleteTask(id: string) {
+  async deleteTask(id: string, currentUser: AuthUser) {
     const task = await this.findTaskById(id);
+    const beforeData = this.toResponse(task);
     await this.tasksRepository.remove(task);
+
+    await this.auditLogsService.createLog({
+      actorId: currentUser.id,
+      actionType: 'TASK_DELETED',
+      targetId: id,
+      beforeData,
+      afterData: null,
+    });
 
     return { message: 'Task deleted successfully' };
   }
