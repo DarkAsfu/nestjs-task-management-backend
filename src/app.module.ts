@@ -3,6 +3,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { User } from './users/entities/user.entity';
+import { Task } from './tasks/entities/task.entity';
+import { AuditLog } from './audit-logs/entities/audit-log.entity';
 
 @Module({
   imports: [
@@ -14,7 +17,7 @@ import { AppService } from './app.service';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         url: configService.getOrThrow<string>('DATABASE_URL'),
-        autoLoadEntities: true,
+        entities: [User, Task, AuditLog],
         synchronize: true,
       }),
     }),
