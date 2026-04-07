@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { User } from './users/entities/user.entity';
 import { Task } from './tasks/entities/task.entity';
 import { AuditLog } from './audit-logs/entities/audit-log.entity';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AuditLog } from './audit-logs/entities/audit-log.entity';
         synchronize: true,
       }),
     }),
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
