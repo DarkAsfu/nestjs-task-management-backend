@@ -12,6 +12,7 @@ import {
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Role } from 'src/common/enums/role.enum';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskStatusDto } from './dto/update-task-status.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
@@ -30,7 +31,7 @@ export class TasksController {
 
   @Post()
   @UseGuards(RolesGuard)
-  @Roles('ADMIN')
+  @Roles(Role.ADMIN)
   create(@Body() createTaskDto: CreateTaskDto, @Req() req: { user: AuthUser }) {
     return this.tasksService.createTask(createTaskDto, req.user);
   }
@@ -47,7 +48,7 @@ export class TasksController {
 
   @Patch(':id')
   @UseGuards(RolesGuard)
-  @Roles('ADMIN')
+  @Roles(Role.ADMIN)
   update(
     @Param('id') id: string,
     @Body() updateTaskDto: UpdateTaskDto,
@@ -67,7 +68,7 @@ export class TasksController {
 
   @Delete(':id')
   @UseGuards(RolesGuard)
-  @Roles('ADMIN')
+  @Roles(Role.ADMIN)
   delete(@Param('id') id: string, @Req() req: { user: AuthUser }) {
     return this.tasksService.deleteTask(id, req.user);
   }

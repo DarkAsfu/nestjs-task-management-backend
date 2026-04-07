@@ -1,98 +1,116 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Task Management Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Simple backend API for task management built with NestJS.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Project Overview
 
-## Description
+This project provides a beginner-friendly backend with:
+- JWT login
+- role-based access (`ADMIN`, `USER`)
+- task CRUD and assignment
+- audit logs for task actions
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+It uses Supabase PostgreSQL as the database.
 
-## Project setup
+## Tech Stack
 
-```bash
-$ npm install
+- NestJS
+- TypeORM
+- PostgreSQL (Supabase)
+- JWT (Passport JWT)
+- Docker
+
+## Features
+
+- Login with email/password
+- Role-based authorization
+- Task management:
+  - admin can create/update/delete/assign tasks
+  - user can view own tasks and update own task status
+- Audit logs for task changes:
+  - task created
+  - task updated
+  - task deleted
+  - task status changed
+  - task assignment changed
+
+## Setup Steps
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Create `.env` in project root.
+3. Add your Supabase database URL and JWT secret.
+4. Run seed to create demo users and sample tasks.
+5. Start the server.
+
+## .env Example
+
+```env
+DATABASE_URL=postgresql://postgres.xxx:[YOUR-PASSWORD]@aws-1-ap-southeast-2.pooler.supabase.com:5432/postgres
+JWT_SECRET=secret123
 ```
 
-## Compile and run the project
+## Run Locally
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm run start:dev
 ```
 
-## Run tests
+App runs on: `http://localhost:3000`
+
+## Run Seed
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm run seed
 ```
 
-## Deployment
+Seed creates:
+- admin user (`admin@test.com`)
+- normal user (`user@test.com`)
+- sample tasks assigned to normal user
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Seed avoids duplicates by checking user email and task title.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Run With Docker
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+docker compose up --build
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+App runs on: `http://localhost:3000`
 
-## Resources
+Docker uses environment variables from `.env` and connects to Supabase PostgreSQL (no local postgres container).
 
-Check out a few resources that may come in handy when working with NestJS:
+## Demo Credentials
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+- **Admin**
+  - Email: `admin@test.com`
+  - Password: `admin123`
+- **User**
+  - Email: `user@test.com`
+  - Password: `user123`
 
-## Support
+## Main API Endpoints
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Health
+- `GET /` - API running check
 
-## Stay in touch
+### Auth
+- `POST /auth/login`
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Users (Admin only)
+- `GET /users`
 
-## License
+### Tasks
+- `POST /tasks` (Admin only)
+- `GET /tasks` (Admin: all tasks, User: own tasks)
+- `GET /tasks/:id` (Admin: any task, User: own task only)
+- `PATCH /tasks/:id` (Admin only)
+- `PATCH /tasks/:id/status` (Admin or assigned user)
+- `DELETE /tasks/:id` (Admin only)
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### Audit Logs (Admin only)
+- `GET /audit-logs`
+- `GET /audit-logs/task/:taskId`
