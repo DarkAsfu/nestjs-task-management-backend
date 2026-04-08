@@ -1,9 +1,0 @@
-services:
-  app:
-    build: .
-    container_name: task-management-server
-    ports:
-      - "3000:3000"
-    env_file:
-      - .env
-    restart: unless-stopped

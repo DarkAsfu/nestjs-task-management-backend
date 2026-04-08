@@ -22,7 +22,7 @@ import { TasksModule } from './tasks/tasks.module';
         type: 'postgres',
         url: configService.getOrThrow<string>('DATABASE_URL'),
         entities: [User, Task, AuditLog],
-        synchronize: true,
+        synchronize: configService.get<string>('NODE_ENV') === 'development',
       }),
     }),
     AuthModule,
